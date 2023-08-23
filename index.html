@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+            html, body
+            {
+                padding: 0px;
+                margin: 0px;	
+                width: 100%;
+                height:100%;
+                position: relative;
+                font-size: 0px;
+                font-family: 'Nanum Square';
+                
+                overflow: hidden;
+            }
+
+            .cs_frame_box
+            {
+                width:100%;
+                height:100%;
+                margin-left:220px;
+                margin-top:45px;
+                font-size:16px;
+                overflow:auto;
+                background-color:#fff;
+
+                box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                -ms-box-sizing: border-box;
+                -o-box-sizing: border-box;
+                -webkit-box-sizing: border-box;
+            }
+
+            table, th, td
+            {
+                border: 1px solid #bcbcbc;
+                position:relative;
+            }
+
+            canvas
+            {
+                width:200px;
+            }
+        </style>
+    </head>
+    <body>
+        <div style="position:absolute;left:0px;width:220px;height:100%;background-color:#BDDBFF;"></div>
+        <div class="cs_frame_box" id="id_frame_box" >
+            <div class="cs_frame">
+                <div class="cs_cctv">
+                    <table>
+                        <!--<caption> CCTV 영상 </caption>-->
+                        <thead>
+                            <tr>
+                                <th>멍멍</th>
+                                <th>왈왈</th>
+                                <th>멍멍</th>
+                                <th>왈왈</th>
+                                <th>멍멍</th>
+                                <th>왈왈</th>
+                            </tr>
+                        </thead>
+                        
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <canvas id="canv1"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv2"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv3"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv4"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv5"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv6"></canvas>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <canvas id="canv7"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv8"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv9"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv10"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv11"></canvas>
+                                </td>
+                                <td>
+                                    <canvas id="canv12"></canvas>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <thead>
+                            <tr>
+                                <th>왈왈</th>
+                                <th>멍멍</th>
+                                <th>왈왈</th>
+                                <th>멍멍</th>
+                                <th>왈왈</th>
+                                <th>멍멍</th>
+                            </tr>
+                        </thead>
+                        <thead>
+                            <tr>
+                                <th colspan="6" id="title">선택 없음</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="height:500px;"><canvas id="canv13"></canvas></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script src="./jquery-1.9.1.js"></script>
+        <script src="./printThis.js"></script>
+        <script src="./jsmpg.js"></script>
+        <script>
+            let bigCanvasWebSocket;
+            let obj = 
+            [
+                {
+                    title:"테스트1",
+                    port: 9001,
+                    ws : null,
+                    canvas: document.querySelector("#canv1")
+                },
+                {
+                    title:"테스트2",
+                    port: 9002,
+                    canvas: document.querySelector("#canv2")
+                }
+            ];
+
+
+            obj.forEach(async (vo) => 
+            {
+                let wso = await new WebSocket(`ws://localhost:${vo.port}`);
+                await new jsmpeg(wso, {canvas: vo.canvas});
+                vo.canvas.addEventListener("click", () => 
+                {
+                    ScreenWidthChange(vo);
+                })
+            });
+
+            function ScreenWidthChange(vo)
+            {
+                if (bigCanvasWebSocket != null && bigCanvasWebSocket.readyState != WebSocket.CLOSED)
+                {
+                    bigCanvasWebSocket.close();
+                }
+
+                let title = document.querySelector("#title");
+                let content = document.querySelector("#canv13");
+                content.style.width = "100%";
+                content.style.height = "100%";
+
+                bigCanvasWebSocket = new WebSocket(`ws://localhost:${vo.port}`);
+                title.innerText = vo.title;
+                new jsmpeg(bigCanvasWebSocket, {canvas: content});
+            }
+        </script>
+    </body>
+</html>
